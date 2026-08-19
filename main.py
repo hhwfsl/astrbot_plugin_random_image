@@ -18,7 +18,7 @@ class ImagePlugin(Star):
         event.get_sender_name()
         message_chain = event.get_messages() # 用户所发的消息的消息链 # from astrbot.api.message_components import *
         logger.info(message_chain)
-        logger.info(f"imageType: {imageType}, imageIsAllowAiType: {imageIsAllowAiType}")
+        logger.info(f"Request parameters: imageType: {imageType}, imageIsAllowAiType: {imageIsAllowAiType}")
         chain = [
             Comp.At(qq=event.get_sender_id()),
             Comp.Image.fromURL(f"https://kafuumiaki.top/api/Image/astrbot/get_image?ImageType={imageType}&ImageIsAllowAiType={imageIsAllowAiType}"),
