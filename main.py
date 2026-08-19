@@ -21,7 +21,7 @@ class ImagePlugin(Star):
         logger.info(f"Request parameters: imageType: {imageType}, imageIsAllowAiType: {imageIsAllowAiType}")
         chain = [
             Comp.At(qq=event.get_sender_id()),
-            Comp.Image.fromURL(f"https://kafuumiaki.top/api/Image/astrbot/get_image?ImageType={imageType}&ImageIsAllowAiType={imageIsAllowAiType}"),
+            Comp.Image.fromURL(f"https://kafuumiaki.top/api/Image/astrbot/get_image?type={imageType}&isAllowAiGenerated={imageIsAllowAiType}"),
         ]
         yield event.chain_result(chain) # 返回消息链
 
