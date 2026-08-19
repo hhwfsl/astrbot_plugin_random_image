@@ -1,7 +1,10 @@
-from astrbot.api.event import filter, AstrMessageEvent, MessageEventResult
-from astrbot.api.star import Context, Star, register
-from astrbot.api import logger
+import Tools.GetRandomImageTool
+
 import astrbot.api.message_components as Comp
+from astrbot.api import logger
+from astrbot.api.event import AstrMessageEvent, MessageEventResult, filter
+from astrbot.api.star import Context, Star, register
+
 
 @register("random_image", "KafuuMiaki", "提供从指定源获取随机一张图片或指定图片功能的 AstrBot 插件", "1.0.2")
 class ImagePlugin(Star):
@@ -15,6 +18,8 @@ class ImagePlugin(Star):
 
     async def initialize(self):
         """可选择实现异步的插件初始化方法，当实例化该插件类之后会自动调用该方法。"""
+        self.context.add_llm_tools(Tools.GetRandomImageTool.GetRandomImageTool())
+
 
     # 注册指令的装饰器。指令名为 random_image。注册成功后，发送 `/random_image` 就会触发这个指令，并回复图片
     @filter.command("random_image", alias={"随机图片","sjtp"})
