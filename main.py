@@ -1,4 +1,4 @@
-from Tools import GetRandomImageTool
+from Tools.GetRandomImageTool import GetRandomImageTool
 
 import astrbot.api.message_components as Comp
 from astrbot.api import logger
@@ -15,7 +15,7 @@ class ImagePlugin(Star):
     }
     def __init__(self, context: Context):
         super().__init__(context)
-        self.context.add_llm_tools(GetRandomImageTool.GetRandomImageTool())
+        self.context.add_llm_tools(GetRandomImageTool())
 
 
     async def initialize(self):
