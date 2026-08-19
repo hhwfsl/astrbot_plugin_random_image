@@ -33,7 +33,7 @@ class ImagePlugin(Star):
 
     # 注册指令的装饰器。指令名为 spec_image。注册成功后，发送 `/spec_image` 就会触发这个指令，并回复图片
     @filter.command("spec_image", alias={"指定图片","zdtp"})
-    async def spec_image(self, event: AstrMessageEvent, id):
+    async def spec_image(self, event: AstrMessageEvent, id: int):
         """这是一个 spec_image 指令""" # 这是 handler 的描述，将会被解析方便用户了解插件内容。建议填写。
         event.get_sender_name()
         message_chain = event.get_messages() # 用户所发的消息的消息链 # from astrbot.api.message_components import *
