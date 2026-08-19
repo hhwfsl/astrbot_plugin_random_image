@@ -3,8 +3,13 @@ from astrbot.api.star import Context, Star, register
 from astrbot.api import logger
 import astrbot.api.message_components as Comp
 
-@register("random_image", "KafuuMiaki", "提供获取随机一张图片功能的 AstrBot 插件", "1.0.0")
+@register("random_image", "KafuuMiaki", "提供从指定源获取随机一张图片或指定图片功能的 AstrBot 插件", "1.0.2")
 class ImagePlugin(Star):
+    replace_map = {
+        ord("o"): "AiOnly",
+        ord("a"): "ALL",
+        ord("n"): "NotAllowAi"
+    }
     def __init__(self, context: Context):
         super().__init__(context)
 
@@ -18,10 +23,25 @@ class ImagePlugin(Star):
         event.get_sender_name()
         message_chain = event.get_messages() # 用户所发的消息的消息链 # from astrbot.api.message_components import *
         logger.info(message_chain)
+        imageIsAllowAiTypeParam = imageIsAllowAiType.lower().translate(self.replace_map)
         logger.info(f"Request parameters: imageType: {imageType}, imageIsAllowAiType: {imageIsAllowAiType}")
         chain = [
             Comp.At(qq=event.get_sender_id()),
-            Comp.Image.fromURL(f"https://kafuumiaki.top/api/Image/astrbot/get_image?type={imageType}&isAllowAiGenerated={imageIsAllowAiType}"),
+            Comp.Image.fromURL(f"https://kafuumiaki.top/api/Image/random/images?type={imageType}&isAllowAiGenerated={imageIsAllowAiTypeParam}"),
+        ]
+        yield event.chain_result(chain) # 返回消息链
+
+    # 注册指令的装饰器。指令名为 spec_image。注册成功后，发送 `/spec_image` 就会触发这个指令，并回复图片
+    @filter.command("spec_image", alias={"指定图片","zdtp"})
+    async def spec_image(self, event: AstrMessageEvent, id):
+        """这是一个 spec_image 指令""" # 这是 handler 的描述，将会被解析方便用户了解插件内容。建议填写。
+        event.get_sender_name()
+        message_chain = event.get_messages() # 用户所发的消息的消息链 # from astrbot.api.message_components import *
+        logger.info(message_chain)
+        logger.info(f"Request parameters: id: {id}")
+        chain = [
+            Comp.At(qq=event.get_sender_id()),
+            Comp.Image.fromURL(f"https://kafuumiaki.top/api/Image/images/{id}"),
         ]
         yield event.chain_result(chain) # 返回消息链
 
