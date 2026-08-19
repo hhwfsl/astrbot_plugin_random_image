@@ -1,4 +1,4 @@
-import Tools.GetRandomImageTool
+from Tools import GetRandomImageTool
 
 import astrbot.api.message_components as Comp
 from astrbot.api import logger
@@ -18,7 +18,7 @@ class ImagePlugin(Star):
 
     async def initialize(self):
         """可选择实现异步的插件初始化方法，当实例化该插件类之后会自动调用该方法。"""
-        self.context.add_llm_tools(Tools.GetRandomImageTool.GetRandomImageTool())
+        self.context.add_llm_tools(GetRandomImageTool.GetRandomImageTool())
 
 
     # 注册指令的装饰器。指令名为 random_image。注册成功后，发送 `/random_image` 就会触发这个指令，并回复图片
