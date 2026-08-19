@@ -40,7 +40,7 @@ class GetRandomImageTool(FunctionTool[AstrAgentContext]):
 
         chain = [
             Comp.At(qq=event.get_sender_id()),
-            Comp.Image.fromURL(f"https://kafuumiaki.top/api/Image/random/images?type={imageType}&isAllowAiGenerated={imageIsAllowAiTypeParam}"),
+            Comp.Image.fromURL(f"https://kafuumiaki.top/api/Image/random/images?type={imageType}&isAllowAiGenerated={imageIsAllowAiType}"),
         ]
         yield event.chain_result(chain) # 返回消息链
 
