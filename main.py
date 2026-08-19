@@ -15,7 +15,7 @@ class ImagePlugin(Star):
     }
     def __init__(self, context: Context):
         super().__init__(context)
-        self.context.add_llm_tools(GetRandomImageTool())
+        self.context.add_llm_tools(GetRandomImageTool()) #添加Tool
 
 
     async def initialize(self):
