@@ -10,7 +10,7 @@ from astrbot.core.astr_agent_context import AstrAgentContext
 @dataclass
 class GetRandomImageTool(FunctionTool[AstrAgentContext]):
     name: str = "get_random_image"  # 工具名称
-    description: str = "A tool to get random image."  # 工具描述
+    description: str = "A tool to get a random image."  # 工具描述
     parameters: dict = Field(
         default_factory=lambda: {
             "type": "object",
