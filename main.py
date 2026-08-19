@@ -10,6 +10,7 @@ from astrbot.core.agent.tool import FunctionTool, ToolExecResult
 from astrbot.core.astr_agent_context import AstrAgentContext
 
 
+# 获取随机图片的Tool
 @dataclass
 class GetRandomImageTool(FunctionTool[AstrAgentContext]):
     name: str = "get_random_image"  # 工具名称
@@ -50,6 +51,7 @@ class ImagePlugin(Star):
         ord("a"): "ALL",
         ord("n"): "NotAllowAi"
     }
+
     def __init__(self, context: Context):
         super().__init__(context)
         self.context.add_llm_tools(GetRandomImageTool()) #添加Tool
