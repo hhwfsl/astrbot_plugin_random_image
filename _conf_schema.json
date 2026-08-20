@@ -1,0 +1,14 @@
+{
+  "enable_nsfw": {
+    "description": "允许NSFW内容",
+    "type": "bool",
+    "default": false,
+    "hint": "nsfw 的判定可能不准确"
+  },
+  "enable_aigc": {
+    "description": "允许AI生成内容",
+    "type": "bool",
+    "default": false,
+    "hint": "aigc 的判定可能不准确"
+  }
+}

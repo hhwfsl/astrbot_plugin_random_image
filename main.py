@@ -3,12 +3,38 @@ from pydantic.dataclasses import dataclass
 
 import astrbot.api.message_components as Comp
 from astrbot.api import logger
-from astrbot.api.event import AstrMessageEvent, MessageEventResult, filter
+from astrbot.api.event import AstrMessageEvent, filter
 from astrbot.api.star import Context, Star, register
 from astrbot.core.agent.run_context import ContextWrapper
 from astrbot.core.agent.tool import FunctionTool, ToolExecResult
 from astrbot.core.astr_agent_context import AstrAgentContext
+from astrbot.core.config.astrbot_config import AstrBotConfig
 
+
+async def get_image(self, event: AstrMessageEvent, imageId: int = 0, imageType: str = "SFW", imageIsAllowAiType: str = "ALL"):
+        """获取图片"""
+        imageIsAllowAiTypeParam = imageIsAllowAiType.lower().translate(self.replace_map)
+        logger.info(f"Request parameters: imageId: {imageId}, imageType: {imageType}, imageIsAllowAiType: {imageIsAllowAiType}")
+        message_chain = []
+        message_chain.append(Comp.At(qq=event.get_sender_id()))
+        if imageId != 0:
+            try:
+                image = Comp.Image.fromURL(f"https://kafuumiaki.top/api/Image/images/{imageId}")
+                message_chain.append(image)
+            except Exception as e:
+                logger.error(f"Error occurred while fetching image: {e}")
+                message_chain.append(Comp.Plain(f"Error occurred while fetching image with ID {imageId}."))
+            finally:
+                return message_chain
+
+        try:
+            image = Comp.Image.fromURL(f"https://kafuumiaki.top/api/Image/random/images?type={imageType}&isAllowAiGenerated={imageIsAllowAiTypeParam}")
+            message_chain.append(image)
+        except Exception as e:
+            logger.error(f"Error occurred while fetching random image: {e}")
+            message_chain.append(Comp.Plain("Error occurred while fetching random image."))
+        finally:
+            return message_chain
 
 # 获取随机图片的Tool
 @dataclass
@@ -40,9 +66,10 @@ class GetRandomImageTool(FunctionTool[AstrAgentContext]):
         imageType = kwargs.get("imageType", "SFW")
         imageIsAllowAiType = kwargs.get("imageIsAllowAiType", "ALL")
         event = context.context.event
-        logger.info(f"Request parameters: imageType: {imageType}, imageIsAllowAiType: {imageIsAllowAiType}")
+        message_chain = []
+        message_chain.append(get_image(self, event, imageType=imageType, imageIsAllowAiType=imageIsAllowAiType))
 
-        return event.image_result(f"https://kafuumiaki.top/api/Image/random/images?type={imageType}&isAllowAiGenerated={imageIsAllowAiType}")
+        return event.chain_result(message_chain)
 
 # 获取指定图片的Tool
 @dataclass
@@ -68,8 +95,11 @@ class GetSpecificImageTool(FunctionTool[AstrAgentContext]):
         imageId = kwargs.get("imageId")
         event = context.context.event
         logger.info(f"Request parameters: imageId: {imageId}")
-
-        return event.image_result(f"https://kafuumiaki.top/api/Image/images/{imageId}")
+        message_chain = [
+            Comp.At(qq=event.get_sender_id()),
+            Comp.Image.fromURL(f"https://kafuumiaki.top/api/Image/images/{imageId}")
+        ]
+        return event.chain_result(message_chain)
 
 
 
@@ -81,8 +111,9 @@ class ImagePlugin(Star):
         ord("n"): "NotAllowAi"
     }
 
-    def __init__(self, context: Context):
+    def __init__(self, context: Context, config: AstrBotConfig):
         super().__init__(context)
+        self.config = config
         self.context.add_llm_tools(GetRandomImageTool(), GetSpecificImageTool()) #添加Tool
 
 
