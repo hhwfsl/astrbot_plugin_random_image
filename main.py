@@ -46,7 +46,7 @@ class GetRandomImageTool(FunctionTool[AstrAgentContext]):
 
 
 
-@register("random_image", "KafuuMiaki", "提供从指定源获取随机一张图片或指定图片功能的 AstrBot 插件", "1.0.2")
+@register("random_image", "KafuuMiaki", "提供从指定源获取随机一张图片或指定图片功能的 AstrBot 插件", "1.0.3")
 class ImagePlugin(Star):
     replace_map = {
         ord("o"): "AiOnly",
