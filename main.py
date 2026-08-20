@@ -128,11 +128,8 @@ class ImagePlugin(Star):
         message_chain = event.get_messages() # 用户所发的消息的消息链 # from astrbot.api.message_components import *
         logger.info(message_chain)
         imageIsAllowAiTypeParam = imageIsAllowAiType.lower().translate(self.replace_map)
-        logger.info(f"Request parameters: imageType: {imageType}, imageIsAllowAiType: {imageIsAllowAiType}")
-        chain = [
-            Comp.At(qq=event.get_sender_id()),
-            Comp.Image.fromURL(f"https://kafuumiaki.top/api/Image/random/images?type={imageType}&isAllowAiGenerated={imageIsAllowAiTypeParam}"),
-        ]
+        chain = []
+        chain.append(get_image(self, event, imageType=imageType, imageIsAllowAiType=imageIsAllowAiTypeParam))
         yield event.chain_result(chain) # 返回消息链
 
     # 注册指令的装饰器。指令名为 spec_image。注册成功后，发送 `/spec_image` 就会触发这个指令，并回复图片
@@ -143,10 +140,8 @@ class ImagePlugin(Star):
         message_chain = event.get_messages() # 用户所发的消息的消息链 # from astrbot.api.message_components import *
         logger.info(message_chain)
         logger.info(f"Request parameters: id: {id}")
-        chain = [
-            Comp.At(qq=event.get_sender_id()),
-            Comp.Image.fromURL(f"https://kafuumiaki.top/api/Image/images/{id}"),
-        ]
+        chain = []
+        chain.append(get_image(self, event, imageId=id))
         yield event.chain_result(chain) # 返回消息链
 
     async def terminate(self):
