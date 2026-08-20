@@ -10,6 +10,7 @@ from astrbot.core.agent.tool import FunctionTool, ToolExecResult
 from astrbot.core.astr_agent_context import AstrAgentContext
 from astrbot.core.config.astrbot_config import AstrBotConfig
 
+# 这配置怎么给Tool用啊, 试了一堆方法, 最后用全局变量试一次了, 不行我没招了
 global_config : AstrBotConfig = Field(default_factory=AstrBotConfig)
 
 # 全局的获取图片方法
