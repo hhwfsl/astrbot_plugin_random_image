@@ -16,7 +16,7 @@ global_config : AstrBotConfig = Field(default_factory=AstrBotConfig)
 # 全局的获取图片方法
 async def get_image(self, event: AstrMessageEvent, imageId: int = 0, imageType: str = "SFW", imageIsAllowAiType: str = "ALL"):
     """获取图片"""
-    imageTypeParam = imageType
+    imageTypeParam = imageType.upper()
     if global_config.get("enable_nsfw") is False and (imageType == "NSFW" or imageType == "ALL"):
         imageTypeParam = "SFW"
 
