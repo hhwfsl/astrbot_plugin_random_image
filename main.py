@@ -37,11 +37,11 @@ class GetRandomImageTool(FunctionTool[AstrAgentContext]):
     ) -> ToolExecResult:
         imageType = kwargs.get("imageType", "SFW")
         imageIsAllowAiType = kwargs.get("imageIsAllowAiType", "ALL")
+        event = context.context.event
+        logger.info(f"Request parameters: imageType: {imageType}, imageIsAllowAiType: {imageIsAllowAiType}")
 
-        chain = [
-            Comp.Image.fromURL(f"https://kafuumiaki.top/api/Image/random/images?type={imageType}&isAllowAiGenerated={imageIsAllowAiType}"),
-        ]
-        return chain
+        return event.image_result(f"https://kafuumiaki.top/api/Image/random/images?type={imageType}&isAllowAiGenerated={imageIsAllowAiType}")
+
 
 
 @register("random_image", "KafuuMiaki", "提供从指定源获取随机一张图片或指定图片功能的 AstrBot 插件", "1.0.2")
