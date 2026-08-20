@@ -69,7 +69,7 @@ class GetRandomImageTool(FunctionTool[AstrAgentContext]):
             "required": ["imageType", "imageIsAllowAiType"],
         }
     )
-    config: AstrBotConfig = AstrBotConfig()
+    config: AstrBotConfig = Field(default_factory=AstrBotConfig)
 
     async def call(
         self, context: ContextWrapper[AstrAgentContext], **kwargs
