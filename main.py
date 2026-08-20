@@ -67,10 +67,8 @@ class GetRandomImageTool(FunctionTool[AstrAgentContext]):
         imageType = kwargs.get("imageType", "SFW")
         imageIsAllowAiType = kwargs.get("imageIsAllowAiType", "ALL")
         event = context.context.event
-        message_chain = []
-        message_chain.append(get_image(self, event, imageType=imageType, imageIsAllowAiType=imageIsAllowAiType))
-
-        return event.chain_result(message_chain)
+        chain = await get_image(self, event, imageType=imageType, imageIsAllowAiType=imageIsAllowAiType)
+        return event.chain_result(chain)
 
 # 获取指定图片的Tool
 @dataclass
@@ -95,11 +93,8 @@ class GetSpecificImageTool(FunctionTool[AstrAgentContext]):
     ) -> ToolExecResult:
         imageId = kwargs.get("imageId", 0)
         event = context.context.event
-        logger.info(f"Request parameters: imageId: {imageId}")
-        message_chain = []
-        message_chain.append(get_image(self, event, imageId=imageId))
-
-        return event.chain_result(message_chain)
+        chain = await get_image(self, event, imageId=imageId)
+        return event.chain_result(chain)
 
 
 
@@ -129,8 +124,8 @@ class ImagePlugin(Star):
         message_chain = event.get_messages() # 用户所发的消息的消息链 # from astrbot.api.message_components import *
         logger.info(message_chain)
         imageIsAllowAiTypeParam = imageIsAllowAiType.lower().translate(self.replace_map)
-        chain = []
-        chain.append(get_image(self, event, imageType=imageType, imageIsAllowAiType=imageIsAllowAiTypeParam))
+        chain = await get_image(self, event, imageType=imageType, imageIsAllowAiType=imageIsAllowAiTypeParam)
+
         yield event.chain_result(chain) # 返回消息链
 
     # 注册指令的装饰器。指令名为 spec_image。注册成功后，发送 `/spec_image` 就会触发这个指令，并回复图片
@@ -141,8 +136,8 @@ class ImagePlugin(Star):
         message_chain = event.get_messages() # 用户所发的消息的消息链 # from astrbot.api.message_components import *
         logger.info(message_chain)
         logger.info(f"Request parameters: id: {id}")
-        chain = []
-        chain.append(get_image(self, event, imageId=id))
+        chain = await get_image(self, event, imageId=id)
+
         yield event.chain_result(chain) # 返回消息链
 
     async def terminate(self):
