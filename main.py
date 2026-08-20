@@ -124,7 +124,7 @@ class ImagePlugin(Star):
         super().__init__(context)
         self.config = config
         global global_config
-        global_config = config
+        global_config = self.config
         self.context.add_llm_tools(GetRandomImageTool()) #添加Tool
         if self.config.get("enable_specific_image"):
             self.context.add_llm_tools(GetSpecificImageTool())
