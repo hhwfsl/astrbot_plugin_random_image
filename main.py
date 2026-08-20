@@ -18,10 +18,12 @@ async def get_image(self, event: AstrMessageEvent, imageId: int = 0, imageType: 
     """获取图片"""
     imageTypeParam = imageType.upper()
     if global_config.get("enable_nsfw") is False and (imageType == "NSFW" or imageType == "ALL"):
+        event.plain_result("NSFW 图片功能已被禁用，请联系管理员启用。")
         imageTypeParam = "SFW"
 
     imageIsAllowAiTypeParam = imageIsAllowAiType
     if global_config.get("enable_aigc") is False and (imageIsAllowAiTypeParam == "AiOnly" or imageIsAllowAiTypeParam == "ALL"):
+        event.plain_result("AI 图片功能已被禁用，请联系管理员启用。")
         imageIsAllowAiTypeParam = "NotAllowAi"
 
     logger.info(f"Request parameters: imageId: {imageId}, imageType: {imageTypeParam}, imageIsAllowAiType: {imageIsAllowAiTypeParam}")
