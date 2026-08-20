@@ -113,7 +113,7 @@ class GetSpecificImageTool(FunctionTool[AstrAgentContext]):
 
 
 
-@register("random_image", "KafuuMiaki", "提供从指定源获取随机一张图片或指定图片功能的 AstrBot 插件", "1.0.5")
+@register("random_image", "KafuuMiaki", "提供从指定源获取随机一张图片或指定图片功能的 AstrBot 插件", "1.0.6")
 class ImagePlugin(Star):
     replace_map = {
         ord("o"): "AiOnly",
@@ -158,6 +158,7 @@ class ImagePlugin(Star):
         logger.info(message_chain)
         if not self.config.get("enable_specific_image"):
             yield event.chain_result([Comp.Plain("指定图片功能已被禁用，请联系管理员启用。")])
+            return
 
         logger.info(f"Request parameters: id: {id}")
         chain = await get_image(self, event, imageId=id)
