@@ -1,4 +1,4 @@
-from pydantic import ConfigDict, Field
+from pydantic import Field
 from pydantic.dataclasses import dataclass
 
 import astrbot.api.message_components as Comp
@@ -47,8 +47,6 @@ async def get_image(self, event: AstrMessageEvent, config: AstrBotConfig, imageI
 # 获取随机图片的Tool
 @dataclass
 class GetRandomImageTool(FunctionTool[AstrAgentContext]):
-    __pydantic_config__ = ConfigDict(arbitrary_types_allowed=True)
-
     name: str = "get_random_image"  # 工具名称
     description: str = "A tool to get a random image."  # 工具描述
     parameters: dict = Field(
@@ -69,23 +67,21 @@ class GetRandomImageTool(FunctionTool[AstrAgentContext]):
             "required": ["imageType", "imageIsAllowAiType"],
         }
     )
-    config: AstrBotConfig = Field(default_factory=AstrBotConfig)
 
     async def call(
         self, context: ContextWrapper[AstrAgentContext], **kwargs
     ) -> ToolExecResult:
+        config: AstrBotConfig = Field(default_factory=AstrBotConfig)
         imageType = kwargs.get("imageType", "SFW")
         imageIsAllowAiType = kwargs.get("imageIsAllowAiType", "ALL")
         event = context.context.event
 
-        chain = await get_image(self, event, config=self.config, imageType=imageType, imageIsAllowAiType=imageIsAllowAiType)
+        chain = await get_image(self, event, config=config, imageType=imageType, imageIsAllowAiType=imageIsAllowAiType)
         return event.chain_result(chain)
 
 # 获取指定图片的Tool
 @dataclass
 class GetSpecificImageTool(FunctionTool[AstrAgentContext]):
-    __pydantic_config__ = ConfigDict(arbitrary_types_allowed=True)
-
     name: str = "get_specific_image"  # 工具名称
     description: str = "A tool to get a specific image by image id."  # 工具描述
     parameters: dict = Field(
@@ -100,14 +96,14 @@ class GetSpecificImageTool(FunctionTool[AstrAgentContext]):
             "required": ["imageId"],
         }
     )
-    config: AstrBotConfig = Field(default_factory=AstrBotConfig)
 
     async def call(
         self, context: ContextWrapper[AstrAgentContext], **kwargs
     ) -> ToolExecResult:
+        config: AstrBotConfig = Field(default_factory=AstrBotConfig)
         imageId = kwargs.get("imageId", 0)
         event = context.context.event
-        chain = await get_image(self, event, config=self.config, imageId=imageId)
+        chain = await get_image(self, event, config=config, imageId=imageId)
         return event.chain_result(chain)
 
 
@@ -123,9 +119,9 @@ class ImagePlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig):
         super().__init__(context)
         self.config = config
-        self.context.add_llm_tools(GetRandomImageTool(config=config)) #添加Tool
+        self.context.add_llm_tools(GetRandomImageTool()) #添加Tool
         if self.config.get("enable_specific_image"):
-            self.context.add_llm_tools(GetSpecificImageTool(config=config))
+            self.context.add_llm_tools(GetSpecificImageTool())
 
     async def initialize(self):
         """可选择实现异步的插件初始化方法，当实例化该插件类之后会自动调用该方法。"""
