@@ -44,9 +44,36 @@ class GetRandomImageTool(FunctionTool[AstrAgentContext]):
 
         return event.image_result(f"https://kafuumiaki.top/api/Image/random/images?type={imageType}&isAllowAiGenerated={imageIsAllowAiType}")
 
+# 获取指定图片的Tool
+@dataclass
+class GetSpecificImageTool(FunctionTool[AstrAgentContext]):
+    name: str = "get_specific_image"  # 工具名称
+    description: str = "A tool to get a specific image by image id."  # 工具描述
+    parameters: dict = Field(
+        default_factory=lambda: {
+            "type": "object",
+            "properties": {
+                "imageId": {
+                    "type": "string",
+                    "description": "Id of image to search for.",
+                },
+            },
+            "required": ["imageId"],
+        }
+    )
+
+    async def call(
+        self, context: ContextWrapper[AstrAgentContext], **kwargs
+    ) -> ToolExecResult:
+        imageId = kwargs.get("imageId")
+        event = context.context.event
+        logger.info(f"Request parameters: imageId: {imageId}")
+
+        return event.image_result(f"https://kafuumiaki.top/api/Image/images/{imageId}")
 
 
-@register("random_image", "KafuuMiaki", "提供从指定源获取随机一张图片或指定图片功能的 AstrBot 插件", "1.0.3")
+
+@register("random_image", "KafuuMiaki", "提供从指定源获取随机一张图片或指定图片功能的 AstrBot 插件", "1.0.4")
 class ImagePlugin(Star):
     replace_map = {
         ord("o"): "AiOnly",
@@ -56,7 +83,7 @@ class ImagePlugin(Star):
 
     def __init__(self, context: Context):
         super().__init__(context)
-        self.context.add_llm_tools(GetRandomImageTool()) #添加Tool
+        self.context.add_llm_tools(GetRandomImageTool(), GetSpecificImageTool()) #添加Tool
 
 
     async def initialize(self):
