@@ -16,19 +16,20 @@ global_config : AstrBotConfig = Field(default_factory=AstrBotConfig)
 # 全局的获取图片方法
 async def get_image(self, event: AstrMessageEvent, imageId: int = 0, imageType: str = "SFW", imageIsAllowAiType: str = "ALL"):
     """获取图片"""
+    message_chain = []
+    message_chain.append(Comp.At(qq=event.get_sender_id()))
     imageTypeParam = imageType.upper()
     if global_config.get("enable_nsfw") is False and (imageType == "NSFW" or imageType == "ALL"):
-        event.plain_result("NSFW 图片功能已被禁用，请联系管理员启用。")
-        imageTypeParam = "SFW"
+        message_chain.append(Comp.Plain("NSFW 图片功能已被禁用，请联系管理员启用。"))
+        return message_chain
 
     imageIsAllowAiTypeParam = imageIsAllowAiType
     if global_config.get("enable_aigc") is False and (imageIsAllowAiTypeParam == "AiOnly" or imageIsAllowAiTypeParam == "ALL"):
-        event.plain_result("AI 图片功能已被禁用，请联系管理员启用。")
-        imageIsAllowAiTypeParam = "NotAllowAi"
+        message_chain.append(Comp.Plain("AI 图片功能已被禁用，请联系管理员启用。"))
+        return message_chain
 
     logger.info(f"Request parameters: imageId: {imageId}, imageType: {imageTypeParam}, imageIsAllowAiType: {imageIsAllowAiTypeParam}")
-    message_chain = []
-    message_chain.append(Comp.At(qq=event.get_sender_id()))
+
     if imageId != 0:
         try:
             image = Comp.Image.fromURL(f"https://kafuumiaki.top/api/Image/images/{imageId}")
