@@ -67,7 +67,8 @@ class GetRandomImageTool(FunctionTool[AstrAgentContext]):
         imageIsAllowAiType = kwargs.get("imageIsAllowAiType", "ALL")
         event = context.context.event
         chain = await get_image(self, event, imageType=imageType, imageIsAllowAiType=imageIsAllowAiType)
-        return event.chain_result(chain)
+        # return event.chain_result(chain)
+        return chain
 
 # 获取指定图片的Tool
 @dataclass
