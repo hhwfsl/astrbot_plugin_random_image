@@ -17,15 +17,18 @@ global_config : AstrBotConfig = Field(default_factory=AstrBotConfig)
 async def get_image(self, event: AstrMessageEvent, imageId: int = 0, imageType: str = "SFW", imageIsAllowAiType: str = "ALL"):
     """获取图片"""
     logger.info(global_config)
+    logger.warning(global_config.get("enable_nsfw"))
+    if not global_config.get("enable_nsfw"):
+        logger.warning("NSFW 图片功能已被禁用，请联系管理员启用。")
     message_chain = []
     message_chain.append(Comp.At(qq=event.get_sender_id()))
     imageTypeParam = imageType.upper()
-    if global_config.get("enable_nsfw") is False and (imageType == "NSFW" or imageType == "ALL"):
+    if not global_config.get("enable_nsfw") and (imageType == "NSFW" or imageType == "ALL"):
         message_chain.append(Comp.Plain("NSFW 图片功能已被禁用，请联系管理员启用。"))
         return message_chain
 
     imageIsAllowAiTypeParam = imageIsAllowAiType
-    if global_config.get("enable_aigc") is False and (imageIsAllowAiTypeParam == "AiOnly" or imageIsAllowAiTypeParam == "ALL"):
+    if not global_config.get("enable_aigc") and (imageIsAllowAiTypeParam == "AiOnly" or imageIsAllowAiTypeParam == "ALL"):
         message_chain.append(Comp.Plain("AI 图片功能已被禁用，请联系管理员启用。"))
         return message_chain
 
