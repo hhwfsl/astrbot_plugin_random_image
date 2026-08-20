@@ -20,7 +20,7 @@ async def get_image(self, event: AstrMessageEvent, imageId: int = 0, imageType: 
     if global_config.get("enable_nsfw") is False and (imageType == "NSFW" or imageType == "ALL"):
         imageTypeParam = "SFW"
 
-    imageIsAllowAiTypeParam = imageIsAllowAiType.lower().translate(self.replace_map)
+    imageIsAllowAiTypeParam = imageIsAllowAiType
     if global_config.get("enable_aigc") is False and (imageIsAllowAiTypeParam == "AiOnly" or imageIsAllowAiTypeParam == "ALL"):
         imageIsAllowAiTypeParam = "NotAllowAi"
 
