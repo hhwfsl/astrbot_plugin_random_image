@@ -1,14 +1,20 @@
 {
   "enable_nsfw": {
-    "description": "允许NSFW内容",
+    "description": "允许NSFW内容(包含Tool)",
     "type": "bool",
     "default": false,
-    "hint": "nsfw 的判定可能不准确"
+    "hint": "开启后允许nsfw内容, nsfw 的判定可能不准确, 关闭不会影响指定图片获取nsfw内容"
   },
   "enable_aigc": {
-    "description": "允许AI生成内容",
+    "description": "允许AI生成内容(包含Tool)",
     "type": "bool",
     "default": false,
-    "hint": "aigc 的判定可能不准确"
+    "hint": "开启后允许aigc内容, aigc 的判定可能不准确, 关闭不会影响指定图片获取nsfw内容"
+  },
+  "enable_specific_image": {
+    "description": "允许通过ID获取指定图片(包含Tool)",
+    "type": "bool",
+    "default": false,
+    "hint": "启用此选项后，用户可以使用 /spec_image 等指令获取指定图片, 同时也会启用对应的Tool"
   }
 }
