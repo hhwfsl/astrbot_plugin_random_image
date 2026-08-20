@@ -1,4 +1,4 @@
-from pydantic import Field
+from pydantic import ConfigDict, Field
 from pydantic.dataclasses import dataclass
 
 import astrbot.api.message_components as Comp
@@ -47,6 +47,8 @@ async def get_image(self, event: AstrMessageEvent, config: AstrBotConfig, imageI
 # 获取随机图片的Tool
 @dataclass
 class GetRandomImageTool(FunctionTool[AstrAgentContext]):
+    __pydantic_config__ = ConfigDict(arbitrary_types_allowed=True)
+
     name: str = "get_random_image"  # 工具名称
     description: str = "A tool to get a random image."  # 工具描述
     parameters: dict = Field(
@@ -82,6 +84,8 @@ class GetRandomImageTool(FunctionTool[AstrAgentContext]):
 # 获取指定图片的Tool
 @dataclass
 class GetSpecificImageTool(FunctionTool[AstrAgentContext]):
+    __pydantic_config__ = ConfigDict(arbitrary_types_allowed=True)
+
     name: str = "get_specific_image"  # 工具名称
     description: str = "A tool to get a specific image by image id."  # 工具描述
     parameters: dict = Field(
@@ -96,7 +100,7 @@ class GetSpecificImageTool(FunctionTool[AstrAgentContext]):
             "required": ["imageId"],
         }
     )
-    config: AstrBotConfig = AstrBotConfig()
+    config: AstrBotConfig = Field(default_factory=AstrBotConfig)
 
     async def call(
         self, context: ContextWrapper[AstrAgentContext], **kwargs
