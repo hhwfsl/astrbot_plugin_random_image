@@ -10,16 +10,17 @@ from astrbot.core.agent.tool import FunctionTool, ToolExecResult
 from astrbot.core.astr_agent_context import AstrAgentContext
 from astrbot.core.config.astrbot_config import AstrBotConfig
 
+global_config : AstrBotConfig = Field(default_factory=AstrBotConfig)
 
 # 全局的获取图片方法
-async def get_image(self, event: AstrMessageEvent, config: AstrBotConfig, imageId: int = 0, imageType: str = "SFW", imageIsAllowAiType: str = "ALL"):
+async def get_image(self, event: AstrMessageEvent, imageId: int = 0, imageType: str = "SFW", imageIsAllowAiType: str = "ALL"):
     """获取图片"""
     imageTypeParam = imageType
-    if config.get("enable_nsfw") is False and (imageType == "NSFW" or imageType == "ALL"):
+    if global_config.get("enable_nsfw") is False and (imageType == "NSFW" or imageType == "ALL"):
         imageTypeParam = "SFW"
 
     imageIsAllowAiTypeParam = imageIsAllowAiType.lower().translate(self.replace_map)
-    if config.get("enable_aigc") is False and (imageIsAllowAiTypeParam == "AiOnly" or imageIsAllowAiTypeParam == "ALL"):
+    if global_config.get("enable_aigc") is False and (imageIsAllowAiTypeParam == "AiOnly" or imageIsAllowAiTypeParam == "ALL"):
         imageIsAllowAiTypeParam = "NotAllowAi"
 
     logger.info(f"Request parameters: imageId: {imageId}, imageType: {imageTypeParam}, imageIsAllowAiType: {imageIsAllowAiTypeParam}")
@@ -71,12 +72,11 @@ class GetRandomImageTool(FunctionTool[AstrAgentContext]):
     async def call(
         self, context: ContextWrapper[AstrAgentContext], **kwargs
     ) -> ToolExecResult:
-        config: AstrBotConfig = Field(default_factory=AstrBotConfig)
         imageType = kwargs.get("imageType", "SFW")
         imageIsAllowAiType = kwargs.get("imageIsAllowAiType", "ALL")
         event = context.context.event
 
-        chain = await get_image(self, event, config=config, imageType=imageType, imageIsAllowAiType=imageIsAllowAiType)
+        chain = await get_image(self, event, imageType=imageType, imageIsAllowAiType=imageIsAllowAiType)
         return event.chain_result(chain)
 
 # 获取指定图片的Tool
@@ -100,10 +100,9 @@ class GetSpecificImageTool(FunctionTool[AstrAgentContext]):
     async def call(
         self, context: ContextWrapper[AstrAgentContext], **kwargs
     ) -> ToolExecResult:
-        config: AstrBotConfig = Field(default_factory=AstrBotConfig)
         imageId = kwargs.get("imageId", 0)
         event = context.context.event
-        chain = await get_image(self, event, config=config, imageId=imageId)
+        chain = await get_image(self, event, imageId=imageId)
         return event.chain_result(chain)
 
 
@@ -119,6 +118,8 @@ class ImagePlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig):
         super().__init__(context)
         self.config = config
+        global global_config
+        global_config = config
         self.context.add_llm_tools(GetRandomImageTool()) #添加Tool
         if self.config.get("enable_specific_image"):
             self.context.add_llm_tools(GetSpecificImageTool())
@@ -138,7 +139,7 @@ class ImagePlugin(Star):
 
         imageIsAllowAiTypeParam = imageIsAllowAiType.lower().translate(self.replace_map)
 
-        chain = await get_image(self, event, config=self.config, imageType=imageTypeParam, imageIsAllowAiType=imageIsAllowAiTypeParam)
+        chain = await get_image(self, event, imageType=imageTypeParam, imageIsAllowAiType=imageIsAllowAiTypeParam)
 
         yield event.chain_result(chain) # 返回消息链
 
@@ -153,7 +154,7 @@ class ImagePlugin(Star):
             yield event.chain_result([Comp.Plain("指定图片功能已被禁用，请联系管理员启用。")])
 
         logger.info(f"Request parameters: id: {id}")
-        chain = await get_image(self, event, config=self.config, imageId=id)
+        chain = await get_image(self, event, imageId=id)
 
         yield event.chain_result(chain) # 返回消息链
 
