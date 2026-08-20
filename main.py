@@ -11,6 +11,7 @@ from astrbot.core.astr_agent_context import AstrAgentContext
 from astrbot.core.config.astrbot_config import AstrBotConfig
 
 
+# 全局的获取图片方法
 async def get_image(self, event: AstrMessageEvent, imageId: int = 0, imageType: str = "SFW", imageIsAllowAiType: str = "ALL"):
         """获取图片"""
         imageIsAllowAiTypeParam = imageIsAllowAiType.lower().translate(self.replace_map)
