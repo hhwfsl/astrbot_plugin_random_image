@@ -22,10 +22,12 @@ class GetRandomImageTool(FunctionTool[AstrAgentContext]):
                 "imageType": {
                     "type": "string",
                     "description": "Type of image to search for.",
+                    "enum": ["SFW", "NSFW", "ALL"],
                 },
                 "imageIsAllowAiType": {
                     "type": "string",
                     "description": "Whether to allow AI-generated images.",
+                    "enum": ["AiOnly", "ALL", "NotAllowAi"]
                 },
             },
             "required": ["imageType", "imageIsAllowAiType"],
