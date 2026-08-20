@@ -92,13 +92,12 @@ class GetSpecificImageTool(FunctionTool[AstrAgentContext]):
     async def call(
         self, context: ContextWrapper[AstrAgentContext], **kwargs
     ) -> ToolExecResult:
-        imageId = kwargs.get("imageId")
+        imageId = kwargs.get("imageId", 0)
         event = context.context.event
         logger.info(f"Request parameters: imageId: {imageId}")
-        message_chain = [
-            Comp.At(qq=event.get_sender_id()),
-            Comp.Image.fromURL(f"https://kafuumiaki.top/api/Image/images/{imageId}")
-        ]
+        message_chain = []
+        message_chain.append(get_image(self, event, imageId=imageId))
+
         return event.chain_result(message_chain)
 
 
