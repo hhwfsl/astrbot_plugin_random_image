@@ -12,9 +12,8 @@ from astrbot.core.config.astrbot_config import AstrBotConfig
 
 
 # 全局的获取图片方法
-def get_image(self, event: AstrMessageEvent, imageId: int = 0, imageType: str = "SFW", imageIsAllowAiType: str = "ALL"):
+async def get_image(self, event: AstrMessageEvent, imageId: int = 0, imageType: str = "SFW", imageIsAllowAiType: str = "ALL"):
     """获取图片"""
-    imageIsAllowAiTypeParam = imageIsAllowAiType.lower().translate(self.replace_map)
     logger.info(f"Request parameters: imageId: {imageId}, imageType: {imageType}, imageIsAllowAiType: {imageIsAllowAiType}")
     message_chain = []
     message_chain.append(Comp.At(qq=event.get_sender_id()))
@@ -29,7 +28,7 @@ def get_image(self, event: AstrMessageEvent, imageId: int = 0, imageType: str = 
             return message_chain
 
     try:
-        image = Comp.Image.fromURL(f"https://kafuumiaki.top/api/Image/random/images?type={imageType}&isAllowAiGenerated={imageIsAllowAiTypeParam}")
+        image = Comp.Image.fromURL(f"https://kafuumiaki.top/api/Image/random/images?type={imageType}&isAllowAiGenerated={imageIsAllowAiType}")
         message_chain.append(image)
     except Exception as e:
         logger.error(f"Error occurred while fetching random image: {e}")
@@ -67,7 +66,7 @@ class GetRandomImageTool(FunctionTool[AstrAgentContext]):
         imageType = kwargs.get("imageType", "SFW")
         imageIsAllowAiType = kwargs.get("imageIsAllowAiType", "ALL")
         event = context.context.event
-        chain = get_image(self, event, imageType=imageType, imageIsAllowAiType=imageIsAllowAiType)
+        chain = await get_image(self, event, imageType=imageType, imageIsAllowAiType=imageIsAllowAiType)
         return event.chain_result(chain)
 
 # 获取指定图片的Tool
@@ -93,7 +92,7 @@ class GetSpecificImageTool(FunctionTool[AstrAgentContext]):
     ) -> ToolExecResult:
         imageId = kwargs.get("imageId", 0)
         event = context.context.event
-        chain = get_image(self, event, imageId=imageId)
+        chain = await get_image(self, event, imageId=imageId)
         return event.chain_result(chain)
 
 
@@ -124,7 +123,7 @@ class ImagePlugin(Star):
         message_chain = event.get_messages() # 用户所发的消息的消息链 # from astrbot.api.message_components import *
         logger.info(message_chain)
         imageIsAllowAiTypeParam = imageIsAllowAiType.lower().translate(self.replace_map)
-        chain = get_image(self, event, imageType=imageType, imageIsAllowAiType=imageIsAllowAiTypeParam)
+        chain = await get_image(self, event, imageType=imageType, imageIsAllowAiType=imageIsAllowAiTypeParam)
 
         yield event.chain_result(chain) # 返回消息链
 
@@ -136,7 +135,7 @@ class ImagePlugin(Star):
         message_chain = event.get_messages() # 用户所发的消息的消息链 # from astrbot.api.message_components import *
         logger.info(message_chain)
         logger.info(f"Request parameters: id: {id}")
-        chain = get_image(self, event, imageId=id)
+        chain = await get_image(self, event, imageId=id)
 
         yield event.chain_result(chain) # 返回消息链
 
