@@ -3,13 +3,13 @@
     "description": "允许NSFW内容(包含Tool)",
     "type": "bool",
     "default": false,
-    "hint": "开启后允许nsfw内容, nsfw 的判定可能不准确, 关闭不会影响指定图片获取nsfw内容"
+    "hint": "开启后允许nsfw内容, nsfw的判定可能不准确, 关闭不会影响指定图片获取nsfw内容"
   },
   "enable_aigc": {
     "description": "允许AI生成内容(包含Tool)",
     "type": "bool",
     "default": false,
-    "hint": "开启后允许aigc内容, aigc 的判定可能不准确, 关闭不会影响指定图片获取nsfw内容"
+    "hint": "开启后允许aigc内容, aigc的判定可能不准确, 关闭不会影响指定图片获取aigc内容"
   },
   "enable_specific_image": {
     "description": "允许通过ID获取指定图片(包含Tool)",

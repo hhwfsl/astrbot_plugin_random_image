@@ -17,6 +17,17 @@ async def get_image(self, event: AstrMessageEvent, imageId: int = 0, imageType: 
     """获取图片"""
     message_chain = []
     message_chain.append(Comp.At(qq=event.get_sender_id()))
+
+    if imageId != 0:
+            try:
+                image = Comp.Image.fromURL(f"https://kafuumiaki.top/api/Image/images/{imageId}")
+                message_chain.append(image)
+            except Exception as e:
+                logger.error(f"Error occurred while fetching image: {e}")
+                message_chain.append(Comp.Plain(f"Error occurred while fetching image with ID {imageId}."))
+            finally:
+                return message_chain
+
     imageTypeParam = imageType.upper()
     if not global_config.get("enable_nsfw") and (imageTypeParam == "NSFW" or imageTypeParam == "ALL"):
         logger.info(f"NSFW image request blocked. imageType: {imageTypeParam}")
@@ -30,16 +41,6 @@ async def get_image(self, event: AstrMessageEvent, imageId: int = 0, imageType: 
         return message_chain
 
     logger.info(f"Request parameters: imageId: {imageId}, imageType: {imageTypeParam}, imageIsAllowAiType: {imageIsAllowAiTypeParam}")
-
-    if imageId != 0:
-        try:
-            image = Comp.Image.fromURL(f"https://kafuumiaki.top/api/Image/images/{imageId}")
-            message_chain.append(image)
-        except Exception as e:
-            logger.error(f"Error occurred while fetching image: {e}")
-            message_chain.append(Comp.Plain(f"Error occurred while fetching image with ID {imageId}."))
-        finally:
-            return message_chain
 
     try:
         image = Comp.Image.fromURL(f"https://kafuumiaki.top/api/Image/random/images?type={imageTypeParam}&isAllowAiGenerated={imageIsAllowAiTypeParam}")
@@ -112,7 +113,7 @@ class GetSpecificImageTool(FunctionTool[AstrAgentContext]):
 
 
 
-@register("random_image", "KafuuMiaki", "提供从指定源获取随机一张图片或指定图片功能的 AstrBot 插件", "1.0.6")
+@register("random_image", "KafuuMiaki", "提供从指定源获取随机一张图片或指定图片功能的 AstrBot 插件", "1.0.7")
 class ImagePlugin(Star):
     replace_map = {
         ord("o"): "AiOnly",
