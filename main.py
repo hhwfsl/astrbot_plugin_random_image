@@ -140,11 +140,12 @@ class ImagePlugin(Star):
         self.context.add_llm_tools(GetRandomImageTool()) #添加Tool
         if self.config.get("enable_specific_image"):
             self.context.add_llm_tools(GetSpecificImageTool())
-        self.enable_scheduled_sending_random_image = global_config.get("enable_scheduled_sending_random_image", False)
-        self.scheduled_sending_random_image_interval = global_config.get("scheduled_time", 24)
+        self.enable_scheduled_sending_random_image = global_config["scheduled_sending_random_image"]["items"]["enable_scheduled_sending_random_image"]
+        self.scheduled_sending_random_image_interval = global_config["scheduled_sending_random_image"]["items"]["scheduled_time"]
         #if self.scheduled_sending_random_image_interval < 1:
         #    self.scheduled_sending_random_image_interval = 1
         if self.enable_scheduled_sending_random_image:
+            logger.info("启动定时发送线程")
             scheduled_sending_random_image_thread = threading.Thread(target=self.scheduled_send_random_image,daemon=True)
             scheduled_sending_random_image_thread.start()
 
@@ -202,10 +203,10 @@ class ImagePlugin(Star):
             end_time = time.monotonic() / 3600
             # 根据定时, 获取图片后发送
             if (end_time - start_time) >= self.scheduled_sending_random_image_interval:
-                image_type = global_config.get("scheduled_image_type", "SFW")
-                allow_aigc = global_config.get("scheduled_image_aigc", "n")
+                image_type = global_config["scheduled_sending_random_image"]["items"]["scheduled_image_type"]
+                allow_aigc = global_config["scheduled_sending_random_image"]["items"]["scheduled_image_aigc"]
                 allow_aigc = self.replace_map[allow_aigc[-1]]
-                pre_words = global_config.get("scheduled_text", "")
+                pre_words = global_config["scheduled_sending_random_image"]["items"]["scheduled_text"]
                 result = await get_image(self, event, imageType=image_type, imageIsAllowAiType=allow_aigc)
                 if type(result) is str:
                     chain = MessageChain().message(pre_words).url_image(result)
