@@ -147,7 +147,7 @@ class ImagePlugin(Star):
         #    self.scheduled_sending_random_image_interval = 1
         if self.enable_scheduled_sending_random_image:
             logger.info("启动定时发送线程")
-            scheduled_sending_random_image_thread = threading.Thread(target=self.scheduled_send_random_image,daemon=True)
+            scheduled_sending_random_image_thread = threading.Thread(target=self.scheduled_send_random_image,daemon=False)
             scheduled_sending_random_image_thread.start()
             logger.info(f"定时线程: {scheduled_sending_random_image_thread.is_alive()}")
 
