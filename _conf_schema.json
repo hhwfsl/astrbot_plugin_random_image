@@ -36,14 +36,14 @@
         },
         "scheduled_image_type": {
           "description": "图片类型",
-          "type": "list",
+          "type": "string",
           "options": ["SFW", "NSFW", "ALL"],
           "default": "SFW",
           "hint": "此处设定不会超过总设定"
         },
         "scheduled_image_aigc": {
           "description": "AI生成设定",
-          "type": "list",
+          "type": "string",
           "options": ["不允许AI生成 n", "允许AI生成 a", "仅AI生成 o"],
           "default": "不允许AI生成 n",
           "hint": "此处设定不会超过总设定"
