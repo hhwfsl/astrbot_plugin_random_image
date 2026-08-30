@@ -51,6 +51,12 @@
         "description": "发送图片附带的文本",
         "type": "string",
         "hint": "会与图片一起发送(在同一条消息中), 位置在图片之前"
+      },
+      "shceduled_whitelist": {
+        "description": "定时发送白名单",
+        "type": "list",
+        "hint": "目前定时发送功能仅对白名单内聊天开启",
+        "default": []
       }
     }
   }

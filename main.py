@@ -195,6 +195,7 @@ class ImagePlugin(Star):
     @filter.command("scheduled_send_random_image")
     async def scheduled_send_random_image(self, event: AstrMessageEvent):
         """定时消息方法"""
+        whitelist = global_config.get("shceduled_whitelist", [])
         start_time = time.monotonic() / 3600
         end_time = 0
         while self.enable_scheduled_sending_random_image:
@@ -208,12 +209,16 @@ class ImagePlugin(Star):
                 result = await get_image(self, event, imageType=image_type, imageIsAllowAiType=allow_aigc)
                 if type(result) is str:
                     chain = MessageChain().message(pre_words).url_image(result)
-                    await self.context.send_message(event.unified_msg_origin, chain)
-                    logger.info(f"成功发送定时图片, 时间{time.localtime()}")
+                    for group_id in whitelist:
+                        event.message_obj.group_id = group_id
+                        await self.context.send_message(event.unified_msg_origin, chain)
+                        logger.info(f"成功发送定时图片到{group_id}, 时间{time.localtime()}")
                 else:
-                    logger.error(f"发送定时图片失败, 时间{time.localtime()}")
-                    chain = MessageChain().message("发送定时图片失败")
-                    await self.context.send_message(event.unified_msg_origin, chain)
+                    for group_id in whitelist:
+                        event.message_obj.group_id = group_id
+                        logger.error(f"发送定时图片到{group_id}失败, 时间{time.localtime()}")
+                        chain = MessageChain().message("发送定时图片失败")
+                        await self.context.send_message(event.unified_msg_origin, chain)
                 start_time = time.monotonic() / 3600
 
     async def terminate(self):
