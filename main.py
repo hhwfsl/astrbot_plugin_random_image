@@ -121,7 +121,7 @@ class GetSpecificImageTool(FunctionTool[AstrAgentContext]):
 
 
 
-@register("random_image", "KafuuMiaki", "提供从指定源获取随机一张图片或指定图片功能的 AstrBot 插件", "1.0.7")
+@register("random_image", "KafuuMiaki", "提供从指定源获取随机一张图片或指定图片功能的 AstrBot 插件", "1.0.8")
 class ImagePlugin(Star):
     enable_scheduled_sending_random_image = False
     scheduled_sending_random_image_interval = 24
@@ -192,12 +192,12 @@ class ImagePlugin(Star):
             chain.append(result)
         yield event.chain_result(chain) # 返回消息链
 
-    @filter.command("scheduled_send_random_image")
     async def scheduled_send_random_image(self, event: AstrMessageEvent):
         """定时消息方法"""
         whitelist = global_config.get("shceduled_whitelist", [])
         start_time = time.monotonic() / 3600
         end_time = 0
+        logger.info("准备进入定时循环")
         while self.enable_scheduled_sending_random_image:
             end_time = time.monotonic() / 3600
             # 根据定时, 获取图片后发送
@@ -220,6 +220,7 @@ class ImagePlugin(Star):
                         chain = MessageChain().message("发送定时图片失败")
                         await self.context.send_message(event.unified_msg_origin, chain)
                 start_time = time.monotonic() / 3600
+        logger.info("退出定时循环")
 
     async def terminate(self):
         """可选择实现异步的插件销毁方法，当插件被卸载/停用时会调用。"""
