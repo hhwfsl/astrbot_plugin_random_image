@@ -196,46 +196,78 @@ class ImagePlugin(Star):
             chain.append(result)
         yield event.chain_result(chain) # 返回消息链
 
-    @filter.command()
     def scheduled_send_random_image(self, event: AstrMessageEvent):
-        """定时循环消息方法"""
-        try:
-            whitelist = global_config.get("shceduled_whitelist", [])
-            start_time = time.monotonic() / 3600
-            end_time = 0
-            logger.info("准备进入定时循环")
-            scheduled_config = global_config.get("scheduled_sending_random_image",{})
-            while self.enable_scheduled_sending_random_image:
-                end_time = time.monotonic() / 3600
-                # 根据定时, 获取图片后发送
-                if (end_time - start_time) >= self.scheduled_sending_random_image_interval:
-                    image_type = scheduled_config.get("scheduled_image_type", "SFW")
-                    allow_aigc = scheduled_config.get("scheduled_image_aigc", "n")
-                    allow_aigc = self.replace_map[allow_aigc[-1]]
-                    pre_words = scheduled_config.get("scheduled_text", "")
-                    result = asyncio.run(get_image(self, event, imageType=image_type, imageIsAllowAiType=allow_aigc))
-                    if type(result) is str:
-                        chain = MessageChain().message(pre_words).url_image(result)
-                        for group_id in whitelist:
-                            event.message_obj.group_id = group_id
-                            asyncio.run(self.context.send_message(event.unified_msg_origin, chain))
-                            logger.info(f"成功发送定时图片到{group_id}, 时间{time.localtime()}")
-                    else:
-                        for group_id in whitelist:
-                            event.message_obj.group_id = group_id
-                            logger.error(f"发送定时图片到{group_id}失败, 时间{time.localtime()}")
-                            chain = MessageChain().message("发送定时图片失败")
-                            asyncio.run(self.context.send_message(event.unified_msg_origin, chain))
-                    start_time = time.monotonic() / 3600
-            logger.info("退出定时循环")
-        except Exception as e:
-            logger.error(f"定时循环错误: {e}")
+        """定时循环：按设定的时间间隔向白名单会话发送随机图片。
+
+        该函数在后台守护线程中运行，每次发送之间等待设定的小时数。
+        时间间隔最低为 1 小时，不足 1 小时按 1 小时处理。
+
+        Args:
+            event: 消息事件，仅透传给 get_image; 循环本身通过白名单会话发送。
+        """
+        while self.enable_scheduled_sending_random_image:
+            interval = self.scheduled_sending_random_image_interval
+            # 最低间隔 1 小时，不足 1 小时按 1 小时处理。
+            if interval < 1:
+                interval = 1
+            time.sleep(interval * 3600)
+            if not self.enable_scheduled_sending_random_image:
+                break
+
+            try:
+                scheduled_config = global_config.get(
+                    "scheduled_sending_random_image", {}
+                )
+                whitelist = scheduled_config.get("shceduled_whitelist", [])
+                if not whitelist:
+                    logger.warning("定时发送白名单为空，跳过本次发送")
+                    continue
+
+                image_type = scheduled_config.get("scheduled_image_type", "SFW")
+                allow_aigc = scheduled_config.get("scheduled_image_aigc", "n")
+                allow_aigc = self.replace_map[ord(allow_aigc[-1])]
+                pre_words = scheduled_config.get("scheduled_text", "")
+
+                result = asyncio.run(
+                    get_image(
+                        self,
+                        event,
+                        imageType=image_type,
+                        imageIsAllowAiType=allow_aigc,
+                    )
+                )
+                chain = MessageChain()
+                if pre_words:
+                    chain.message(pre_words)
+                if isinstance(result, str):
+                    chain.url_image(result)
+                else:
+                    chain.message("发送定时图片失败")
+
+                for session in whitelist:
+                    try:
+                        sent = asyncio.run(
+                            self.context.send_message(session, chain)
+                        )
+                        if sent:
+                            logger.info(f"成功发送定时图片到 {session}")
+                        else:
+                            logger.error(f"未找到会话 {session} 对应的平台, 发送失败")
+                    except Exception as e:
+                        logger.error(f"发送定时图片到 {session} 失败: {e}")
+            except Exception as e:
+                logger.error(f"本轮定时发送失败: {e}")
+        logger.info("退出定时循环")
 
 
     async def terminate(self):
         """可选择实现异步的插件销毁方法，当插件被卸载/停用时会调用。"""
         self.enable_scheduled_sending_random_image = False
+        thread = self.scheduled_sending_random_image_thread
+        if thread is None or not thread.is_alive():
+            return
         try:
-            await asyncio.wait_for(asyncio.to_thread(self.scheduled_sending_random_image_thread.join),timeout=5)
+            await asyncio.wait_for(asyncio.to_thread(thread.join), timeout=5)
         except Exception as e:
             logger.error(f"定时线程未能按时关闭, 将忽略. {e}")
+
