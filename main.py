@@ -121,7 +121,7 @@ class GetSpecificImageTool(FunctionTool[AstrAgentContext]):
 
 
 
-@register("random_image", "KafuuMiaki", "提供从指定源获取随机一张图片或指定图片功能的 AstrBot 插件", "1.0.8")
+@register("random_image", "KafuuMiaki", "提供从指定源获取随机一张图片或指定图片功能的 AstrBot 插件", "1.0.9")
 class ImagePlugin(Star):
     enable_scheduled_sending_random_image = False
     scheduled_sending_random_image_interval = 24
@@ -145,11 +145,11 @@ class ImagePlugin(Star):
         self.scheduled_sending_random_image_interval = scheduled_config.get("scheduled_time", 24)
         #if self.scheduled_sending_random_image_interval < 1:
         #    self.scheduled_sending_random_image_interval = 1
-        if self.enable_scheduled_sending_random_image:
-            logger.info("启动定时发送线程")
-            scheduled_sending_random_image_thread = threading.Thread(target=self.scheduled_send_random_image,daemon=False)
-            scheduled_sending_random_image_thread.start()
-            logger.info(f"定时线程: {scheduled_sending_random_image_thread.is_alive()}")
+        # if self.enable_scheduled_sending_random_image:
+        #     logger.info("启动定时发送线程")
+        #     scheduled_sending_random_image_thread = threading.Thread(target=self.scheduled_send_random_image,daemon=False)
+        #     scheduled_sending_random_image_thread.start()
+        #     logger.info(f"定时线程: {scheduled_sending_random_image_thread.is_alive()}")
 
     async def initialize(self):
         """可选择实现异步的插件初始化方法，当实例化该插件类之后会自动调用该方法。"""
@@ -195,39 +195,39 @@ class ImagePlugin(Star):
             chain.append(result)
         yield event.chain_result(chain) # 返回消息链
 
-    async def scheduled_send_random_image(self, event: AstrMessageEvent):
-        """定时循环消息方法"""
-        try:
-            whitelist = global_config.get("shceduled_whitelist", [])
-            start_time = time.monotonic() / 3600
-            end_time = 0
-            logger.info("准备进入定时循环")
-            scheduled_config = global_config.get("scheduled_sending_random_image",{})
-            while self.enable_scheduled_sending_random_image:
-                end_time = time.monotonic() / 3600
-                # 根据定时, 获取图片后发送
-                if (end_time - start_time) >= self.scheduled_sending_random_image_interval:
-                    image_type = scheduled_config.get("scheduled_image_type", "SFW")
-                    allow_aigc = scheduled_config.get("scheduled_image_aigc", "n")
-                    allow_aigc = self.replace_map[allow_aigc[-1]]
-                    pre_words = scheduled_config.get("scheduled_text", "")
-                    result = await get_image(self, event, imageType=image_type, imageIsAllowAiType=allow_aigc)
-                    if type(result) is str:
-                        chain = MessageChain().message(pre_words).url_image(result)
-                        for group_id in whitelist:
-                            event.message_obj.group_id = group_id
-                            await self.context.send_message(event.unified_msg_origin, chain)
-                            logger.info(f"成功发送定时图片到{group_id}, 时间{time.localtime()}")
-                    else:
-                        for group_id in whitelist:
-                            event.message_obj.group_id = group_id
-                            logger.error(f"发送定时图片到{group_id}失败, 时间{time.localtime()}")
-                            chain = MessageChain().message("发送定时图片失败")
-                            await self.context.send_message(event.unified_msg_origin, chain)
-                    start_time = time.monotonic() / 3600
-            logger.info("退出定时循环")
-        except Exception as e:
-            logger.error(f"定时循环错误: {e}")
+    # async def scheduled_send_random_image(self, event: AstrMessageEvent):
+    #     """定时循环消息方法"""
+    #     try:
+    #         whitelist = global_config.get("shceduled_whitelist", [])
+    #         start_time = time.monotonic() / 3600
+    #         end_time = 0
+    #         logger.info("准备进入定时循环")
+    #         scheduled_config = global_config.get("scheduled_sending_random_image",{})
+    #         while self.enable_scheduled_sending_random_image:
+    #             end_time = time.monotonic() / 3600
+    #             # 根据定时, 获取图片后发送
+    #             if (end_time - start_time) >= self.scheduled_sending_random_image_interval:
+    #                 image_type = scheduled_config.get("scheduled_image_type", "SFW")
+    #                 allow_aigc = scheduled_config.get("scheduled_image_aigc", "n")
+    #                 allow_aigc = self.replace_map[allow_aigc[-1]]
+    #                 pre_words = scheduled_config.get("scheduled_text", "")
+    #                 result = await get_image(self, event, imageType=image_type, imageIsAllowAiType=allow_aigc)
+    #                 if type(result) is str:
+    #                     chain = MessageChain().message(pre_words).url_image(result)
+    #                     for group_id in whitelist:
+    #                         event.message_obj.group_id = group_id
+    #                         await self.context.send_message(event.unified_msg_origin, chain)
+    #                         logger.info(f"成功发送定时图片到{group_id}, 时间{time.localtime()}")
+    #                 else:
+    #                     for group_id in whitelist:
+    #                         event.message_obj.group_id = group_id
+    #                         logger.error(f"发送定时图片到{group_id}失败, 时间{time.localtime()}")
+    #                         chain = MessageChain().message("发送定时图片失败")
+    #                         await self.context.send_message(event.unified_msg_origin, chain)
+    #                 start_time = time.monotonic() / 3600
+    #         logger.info("退出定时循环")
+    #     except Exception as e:
+    #         logger.error(f"定时循环错误: {e}")
 
 
     async def terminate(self):
