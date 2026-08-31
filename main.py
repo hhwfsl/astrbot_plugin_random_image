@@ -126,7 +126,7 @@ class GetSpecificImageTool(FunctionTool[AstrAgentContext]):
 class ImagePlugin(Star):
     enable_scheduled_sending_random_image = False
     scheduled_sending_random_image_interval = 24
-    scheduled_sending_random_image_thread = threading.Thread()
+    scheduled_sending_random_image_thread = None
     replace_map = {
         ord("o"): "AiOnly",
         ord("a"): "ALL",
@@ -141,17 +141,27 @@ class ImagePlugin(Star):
         self.context.add_llm_tools(GetRandomImageTool()) #添加Tool
         if self.config.get("enable_specific_image"):
             self.context.add_llm_tools(GetSpecificImageTool())
-        scheduled_config = global_config.get("scheduled_sending_random_image",{})
-        self.enable_scheduled_sending_random_image = scheduled_config.get("enable_scheduled_sending_random_image", False)
-        self.scheduled_sending_random_image_interval = scheduled_config.get("scheduled_time", 24)
-        #if self.scheduled_sending_random_image_interval < 1:
-        #    self.scheduled_sending_random_image_interval = 1
+        scheduled_config = global_config.get("scheduled_sending_random_image", {})
+        self.enable_scheduled_sending_random_image = scheduled_config.get(
+            "enable_scheduled_sending_random_image", False
+        )
+        self.scheduled_sending_random_image_interval = scheduled_config.get(
+            "scheduled_time", 24
+        )
+        # 最低间隔 1 小时，不足 1 小时按 1 小时处理。
+        if self.scheduled_sending_random_image_interval < 1:
+            self.scheduled_sending_random_image_interval = 1
         if self.enable_scheduled_sending_random_image:
             logger.info("启动定时发送线程")
-            scheduled_sending_random_image_thread = threading.Thread(target=self.scheduled_send_random_image,daemon=True)
-            scheduled_sending_random_image_thread.start()
-            logger.info(f"定时线程: {scheduled_sending_random_image_thread.is_alive()}")
-
+            self.scheduled_sending_random_image_thread = threading.Thread(
+                target=self.scheduled_send_random_image,
+                args=(None,),
+                daemon=True,
+            )
+            self.scheduled_sending_random_image_thread.start()
+            logger.info(
+                f"定时线程: {self.scheduled_sending_random_image_thread.is_alive()}"
+            )
     async def initialize(self):
         """可选择实现异步的插件初始化方法，当实例化该插件类之后会自动调用该方法。"""
 
