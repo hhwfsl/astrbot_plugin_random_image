@@ -16,48 +16,5 @@
     "type": "bool",
     "default": false,
     "hint": "启用此选项后，用户可以使用 /spec_image 等指令获取指定图片, 同时也会启用对应的Tool"
-  },
-  "scheduled_sending_random_image": {
-    "description": "定时发送随机图片设置项",
-    "type": "object",
-    "hint": "启用后将按照设定的时间间隔自动发送图片",
-    "items": {
-      "enable_scheduled_sending_random_image": {
-        "description": "总开关",
-        "type": "bool",
-        "default": false
-      },
-      "scheduled_time":{
-        "description": "时间间隔",
-        "type": "float",
-        "hint": "单位为小时(Hour), 默认时间为24",
-        "default": 24.0
-      },
-      "scheduled_image_type": {
-        "description": "图片类型",
-        "type": "string",
-        "options": ["SFW", "NSFW", "ALL"],
-        "default": "SFW",
-        "hint": "此处设定不会超过总设定"
-      },
-      "scheduled_image_aigc": {
-        "description": "AI生成设定",
-        "type": "string",
-        "options": ["不允许AI生成 n", "允许AI生成 a", "仅AI生成 o"],
-        "default": "不允许AI生成 n",
-        "hint": "此处设定不会超过总设定"
-      },
-      "scheduled_text": {
-        "description": "发送图片附带的文本",
-        "type": "string",
-        "hint": "会与图片一起发送(在同一条消息中), 位置在图片之前"
-      },
-      "shceduled_whitelist": {
-        "description": "定时发送白名单",
-        "type": "list",
-        "hint": "目前定时发送功能仅对白名单内聊天开启, 请填写完整的会话ID(格式: 平台ID:消息类型:会话ID, 例如 aiocqhttp:GroupMessage:123456789)",
-        "default": []
-      }
-    }
   }
 }
