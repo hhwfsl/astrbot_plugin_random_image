@@ -1,13 +1,10 @@
-import asyncio
-import threading
-import time
 
 from pydantic import Field
 from pydantic.dataclasses import dataclass
 
 import astrbot.api.message_components as Comp
 from astrbot.api import logger
-from astrbot.api.event import AstrMessageEvent, MessageChain, filter
+from astrbot.api.event import AstrMessageEvent, filter
 from astrbot.api.star import Context, Star, register
 from astrbot.core.agent.run_context import ContextWrapper
 from astrbot.core.agent.tool import FunctionTool, ToolExecResult
@@ -188,5 +185,4 @@ class ImagePlugin(Star):
 
     async def terminate(self):
         """可选择实现异步的插件销毁方法，当插件被卸载/停用时会调用。"""
-        self.enable_scheduled_sending_random_image = False
 
