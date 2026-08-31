@@ -196,6 +196,7 @@ class ImagePlugin(Star):
             chain.append(result)
         yield event.chain_result(chain) # 返回消息链
 
+    @filter.command()
     def scheduled_send_random_image(self, event: AstrMessageEvent):
         """定时循环消息方法"""
         try:
