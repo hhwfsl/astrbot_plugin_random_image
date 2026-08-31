@@ -55,7 +55,7 @@
       "shceduled_whitelist": {
         "description": "定时发送白名单",
         "type": "list",
-        "hint": "目前定时发送功能仅对白名单内聊天开启",
+        "hint": "目前定时发送功能仅对白名单内聊天开启, 请填写完整的会话ID(格式: 平台ID:消息类型:会话ID, 例如 aiocqhttp:GroupMessage:123456789)",
         "default": []
       }
     }
